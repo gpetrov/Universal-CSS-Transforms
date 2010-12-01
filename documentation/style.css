@@ -1,0 +1,157 @@
+
+body {
+  font-family:Tahoma, sans-serif;
+  font-size:12px;
+	background:#DDD;
+	margin:0;
+	padding:0;
+}
+
+h1 {
+	font-family:Arial, Helvetica, sans-serif;
+  font-size:38px;
+  color:#146;
+  text-shadow: 4px 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+h2 {}
+
+h3 {
+	color:#C06;
+	font-size:16px;
+}
+
+h4 {
+	font-size:14px;
+	color:#FFF;
+	background:#058;
+	padding:5px;
+  margin:0;
+}
+
+h5 {}
+
+h6 {}
+
+pre {
+  border:1px solid #CCC;
+  background:#F6F6F6;
+	padding:4px;
+  font-size:12px;
+}
+
+legend {
+	color:#036;
+}
+
+fieldset {
+  white-space:normal;
+  border:1px solid #DCB;
+  padding:6px;
+  margin:4px auto;
+}
+
+li {
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+.red {
+	color:red;
+}
+
+.notes {
+  color:#999;
+}
+
+#wrapper {
+  width:80%;
+  margin:20px auto 16px;
+	background:#FFF;
+	padding:10px;
+	border: 1px solid #BBB;
+  /*-moz-box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.4);
+  -webkit-box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.4);
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.4);*/
+}
+
+#header {
+  background: url("dmxzone_docs_logo.png") left center no-repeat;
+  text-align: center;
+  line-height: 70px;
+}
+
+.section {
+  background:#EFEFED;
+  padding:6px;
+  border:1px solid #E6E6E6;
+}
+
+.asterix {
+  font-size:14px;
+  font-weight:bold;
+  color:red;
+  padding: 0 4px;
+}
+
+.property-table {
+  border: 1px solid #666;
+  background-color: #BBB;
+}
+
+.property-table td {
+  background-color: #FFF;
+  font-size:11px;
+}
+
+.property-table th {
+  background-color: #CCC;
+}
+
+.property-table caption {
+  background-color: #666;
+  color: #FFF;
+  font-size: 16px;
+  padding: 3px 0;
+}
+
+/******************************************************************************/
+/*                         Tabs and TabPannels                                */
+/******************************************************************************/
+.tabs {
+  padding:2px 0px 0px 10px;
+}
+
+.tabs .tab {
+  display:inline-block;
+  float:left;
+  padding:5px 35px;
+  border-width: 2px 2px 0px 2px;
+  border-color:#CCC;
+  border-style:solid;
+  background:#F9F9F9;
+  vertical-align:bottom;
+  margin: auto 1px;
+  cursor:default;
+  font-weight:bold;
+  color:#666;
+}
+
+.tabs .tab.active {
+  position:relative;
+  z-index:2;
+  padding:6px 36px;
+  border-color:#999;
+  border-bottom:2px solid #FFF;
+  margin-top:-4px;
+  background:#FFF;
+  color:#000;
+}
+
+.tab_contents {
+  position:relative;
+  z-index:1;
+  border:2px solid #999;
+  padding:2px;
+  margin-top:-2px;
+}

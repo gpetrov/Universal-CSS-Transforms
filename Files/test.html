@@ -1,0 +1,450 @@
+<html> 
+<head>
+<title>FX Tests</title>
+<style>
+* {
+  font-family: Verdana, Tahoma, sans-serif;
+  font-size: 10px;
+}
+table {
+  background-color:#AAA;
+}
+.progress {
+  background-color: #3C0;
+  height: 6px;
+  margin: 0;
+  max-width:100%;
+  width: 0px;
+  background: -webkit-gradient(linear, left top, left bottom, from(#9C0), to(#060), color-stop(0.2, #Df5), color-stop(0.49, #Cf3), color-stop(0.5, #9C0), color-stop(0.8, #AA0));
+  -webkit-box-shadow: 1px 1px 3px rgba(0,0,0,0.4);
+  -webkit-border-radius: 3px;
+  -moz-box-shadow: 1px 1px 3px rgba(0,0,0,0.4);
+  -moz-border-radius: 3px;
+  border: 1px solid  rgba(0,0,0,0.3);
+  border-color: rgba(0,0,0,0.2) rgba(0,0,0,0.5) rgba(0,0,0,0.6) rgba(0,0,0,0.3);
+  background: -moz-linear-gradient(-90deg, #9F0, #390);
+}
+.orange {
+  background: #F90;
+  background: -webkit-gradient(linear, left top, left bottom, from(#F90), to(#C00), color-stop(0.2, #FD5), color-stop(0.49, #F90), color-stop(0.5, #C60), color-stop(0.9, #963));
+  background: -moz-linear-gradient(-90deg, #F90, #FD5 20%, #F90 49%, #C60 50%, #963 90%, #C00);
+}
+
+* html .progress {
+  background: #3C0;
+}
+
+* html .orange {
+  background: #F90;
+}
+
+th {
+  background-color:#CCC;
+  font-weight: bold;
+  background: -webkit-gradient(linear, left top, left bottom, from(#EEE), to(#D0D0D0), color-stop(0.49, #E6E6E6), color-stop(0.5, #DDD));
+  background: -moz-linear-gradient(-90deg, #EEE, #E6E6E6 49%, #DDD 50%, #D0D0D0);
+  border: 1px solid #CCC;
+  border-color: #FFF #DDD #C6C6C6 #DDD;
+  text-shadow: 1px 1px 0px #FFF;
+  -moz-border-radius: 1px;
+}
+th, td {
+  height: 26px;
+}
+pre {
+  margin:0;
+  padding : 0;
+  font-family: monospace;
+  font-size:11px;
+}
+tr:hover {
+  background-color: #BBF;
+}
+tr.active, tr.active:hover {
+  background-color: #FD6;
+}
+h2 {
+  font-family: Arial, sans-serif;
+  font-size: 24px;
+}
+</style>
+<script type="text/javascript" src="ScriptLibrary/jquery-latest.pack.js"></script>
+<script type="text/javascript" src="ScriptLibrary/jquery.easing.1.3.js"></script>
+<script type="text/javascript" src="jquery.csstransform.pack.js"></script>
+<script>
+function callback(o) {
+  return "+=0.001";
+}
+
+var TESTS = [
+  {
+    label: "Read CSS property",
+    code : '$("img:first").css("border")'
+  },
+  {
+    label: "Write CSS property",
+    code : '$("img:first").css("border", "20px solid red")'
+  },
+  {
+    label: "Read CSS Transform property (first one)",
+    code : '$("img:first").css("rotate")'
+  },
+  {
+    label: "Read CSS Transform property (first one)",
+    code : '$("img:first").css("rotate.0")'
+  },
+  {
+    label: "Read CSS Transform property (NOT first one)",
+    code : '$("img:first").css("rotate.5")'
+  },
+  {
+    label: "Write CSS Transform property (first one)",
+    code : '$("img:first").css("rotate", 30)'
+  },
+  {
+    label: "Write CSS Transform property (first one)",
+    code : '$("img:first").css("rotate.0", 30)'
+  },
+  {
+    label: "Write CSS Transform property (NOT first one)",
+    code : '$("img:first").css("rotate.5", 30)'
+  },
+  {
+    label: "Set numeric value",
+    code : '$("img:first").css("rotate.5", 30)'
+  },
+  {
+    label: "Set string value",
+    code : '$("img:first").css("rotate.5", "30")'
+  },
+  {
+    label: "Set standart value",
+    code : '$("img:first").css("rotate.5", "30deg")'
+  },
+  {
+    label: "Set relative value",
+    code : '$("img:first").css("rotate", "+=30")'
+  },
+  {
+    label: "Set relative value",
+    code : '$("img:first").css("rotate", "-=30")'
+  },
+  {
+    label: "Set relative value",
+    code : '$("img:first").css("rotate", "*=30")'
+  },
+  {
+    label: "Set relative value",
+    code : '$("img:first").css("rotate", "/=30")'
+  },
+  {
+    label: "Set relative value",
+    code : '$("img:first").css("rotate", "%=30")'
+  },
+  {
+    label: "Set array value",
+    code : '$("img:first").css("rotate", [30])'
+  },
+  {
+    label: "Set function value",
+    code : '$("img:first").css("rotate", function() { return 30; })'
+  },
+  {
+    label: "All arguments",
+    code : '$("img:first").css("matrix", [1.1, 0.2, 0.5, 2.1, 4, 6])'
+  },
+  {
+    label: "Missing arguments",
+    code : '$("img:first").css("matrix", [1.1, 0.2])'
+  },
+  {
+    label: "Set value list",
+    code : '$("img:first").css("matrix", "1.1, 0.2, 0.5, 2.1, 4, 6")'
+  },
+  {
+    label: "Set value array",
+    code : '$("img:first").css("matrix", [1.1, 0.2, 0.5, 2.1, 4, 6])'
+  },
+  {
+    label: "Set relative values list",
+    code : '$("img:first").css("matrix", "+=0.001, +=0.002, +=0.005, +=0.001, +=0.04, +=0.006")'
+  },
+  {
+    label: "Set relative values array",
+    code : '$("img:first").css("matrix", ["+=0.001", "+=0.002", "+=0.005", "+=0.001", "+=0.04", "+=0.006"])'
+  },
+  {
+    label: "Set relative values array",
+    code : '$("img:first").css("matrix", [callback, callback, callback, callback, callback, callback])'
+  },
+  {
+    label: "Set nested function",
+    code : '$("img:first").css("matrix", function() { return [callback, callback, callback, callback, callback, callback] })'
+  },
+  {
+    label: "Set multiple transform functions",
+    code : '$("img:first").css({"matrix": [1.1, 0.2, 0.5, 2.1, 4, 6], rotate: 30, skew: [12, 27], scale: [0.82, 1.77], translate: "-20, -45" })'
+  },
+  {
+    label: "Mix transform and CSS2 properties",
+    code : '$("img:first").css({rotate: 30, skew: [12, 27], top: "77px", height: "100px", left: "37px" })'
+  },
+  {
+    label: "Mix transform and CSS3 properties",
+    code : '$("img:first").css({rotate: 30, "skew.1": [27, 12], boxShadow: "7px 7px 7px #000", opacity: 0.3, borderRadius: 45 })'
+  }
+  
+];
+
+var ANIMATION_TESTS = [
+  {
+    label: "matrix",
+    code : '$("img:last").animate({ matrix: [-1.5, 2.5, 0.5, 3.5, 40.5, 30.5] }, 1440);'
+  },
+  {
+    label: "matrix3d",
+    code : '$("img:last").animate({ matrix3d : [1.5, 0.5, 0.5, 0.5, 0.5, 1.5, 0.5, 0.5, 0.5, 0.5, 1.5, 0.5, 0.5, 0.5, 0.5, 1.5] }, 1440);'
+  },
+  {
+    label: "rotate",
+    code : '$("img:last").animate({ rotate: 120 }, 1440);'
+  },
+  {
+    label: "rotateX",
+    code : '$("img:last").animate({ rotateX: 120 }, 1440);'
+  },
+  {
+    label: "rotateY",
+    code : '$("img:last").animate({ rotateY: 120 }, 1440);'
+  },
+  {
+    label: "rotateZ",
+    code : '$("img:last").animate({ rotateZ: 120 }, 1440);'
+  },
+  {
+    label: "rotate3d",
+    code : '$("img:last").animate({ rotate3d : [100, 100, 150, 30] }, 1440);'
+  },
+  {
+    label: "scale",
+    code : '$("img:last").animate({ scale: [2, 2] }, 1440);'
+  },
+  {
+    label: "scaleX",
+    code : '$("img:last").animate({ scaleX: 2 }, 1440);'
+  },
+  {
+    label: "scaleY",
+    code : '$("img:last").animate({ scaleY: 2 }, 1440);'
+  },
+  {
+    label: "scaleZ",
+    code : '$("img:last").animate({ scaleZ: 2 }, 1440);'
+  },
+  {
+    label: "scale3d",
+    code : '$("img:last").animate({ scale3d : [2, 3, 4] }, 1440);'
+  },
+  {
+    label: "translate",
+    code : '$("img:last").animate({ translate: [100, 100] }, 1440);'
+  },
+  {
+    label: "translateX",
+    code : '$("img:last").animate({ translateX: 100 }, 1440);'
+  },
+  {
+    label: "translateY",
+    code : '$("img:last").animate({ translateY: 100 }, 1440);'
+  },
+  {
+    label: "translateZ",
+    code : '$("img:last").animate({ translateZ: 100 }, 1440);'
+  },
+  {
+    label: "translate3d",
+    code : '$("img:last").animate({ translate3d : [100, 200, 300] }, 1440);'
+  },
+  {
+    label: "skew",
+    code : '$("img:last").animate({ skew: [35, 15] }, 1440);'
+  },
+  {
+    label: "skewX",
+    code : '$("img:last").animate({ skewX: 35 }, 1440);'
+  },
+  {
+    label: "skewY",
+    code : '$("img:last").animate({ skewY: 35 }, 1440);'
+  },
+  {
+    label: "perspective",
+    code : '$("img:last").animate({ perspective : 200 }, 1440);'
+  },
+  {
+    label: "transform",
+    code : '$("img:last").animate({ transform : "rotate(120) skew(35, 12)" }, 1440);'
+  },
+  {
+    label: "rotate before translate",
+    code : '$("img:last").animate({ "rotate": 120, translate: [100, 100] }, 1440);'
+  },
+  {
+    label: "rotate after translate",
+    code : '$("img:last").animate({ "translate.0": [100, 100], rotate: 120 }, 1440);'
+  },
+  {
+    label: "Mix 1",
+    code : '$("img:last").animate({ ' + 
+      'translate: [100, 100], ' + 
+      'scale: 3, ' + 
+      'rotate: 120, ' + 
+      'skew: "120, 200", ' + 
+      'scale: 0.5' + 
+      '}, 1440);'
+  },
+  {
+    label: "Mix 2",
+    code : '$("img:last").animate({ opacity: 0.8, "translate.0": [100, 200], "rotate.0": 3600, "translate.1": [400, 20], "rotate.1": -720 }, 1440);'
+  }
+];
+
+function init() {
+  var table = '<table border="0" cellpadding="1" cellspacing="1">' + 
+  '<tr><th>Test</th><th>Code</th><th><select id="cnt"><option value="1">x1</option>' +
+  '<option value="100">x100</option><option value="1000">x1000</option></select>' + 
+  '</th><th>Result</th></tr>';
+  var html, tmp, testsDiv = $("#tests");
+  for ( var i = 0; i < TESTS.length; i++ ) {
+    tmp = TESTS[i];
+    html  = '<tr bgcolor="#' + (i%2===0 ? 'EEEEEE' : 'FFFFFF') + '">';
+    html += '<td><b>' + tmp.label + ":</b></td>";
+    html += "<td><pre contentEditable=\"true\">" + tmp.code + "</pre></td>";
+    html += '<td align="center"><input type="button" value="  Test  " onclick="test(' + i + ')" /></td>';
+    html += '<td width="100"><span/><div class="progress" align="left" /></td>';
+    html += "</tr>";
+    table += html;
+  }
+  table += '</table>';
+  testsDiv.append(table)
+  
+  initAnimationTests();
+  
+  //$("table").each(function(i, t) {
+    $("tr").not(":first").click(function() {
+      $(this).toggleClass("active");
+    });
+  //});
+}
+
+function test( i ) {
+  var start = +new Date;
+  var cnt = parseInt( $("#cnt").val(), 10);
+  var code = $("#tests tr").eq(i + 1).find("td:eq(1) > pre").text();
+  for (var y = 0; y < cnt; y++) {
+    try {
+      eval(code);
+    } catch (ex) {
+      alert( ex );
+      return;
+    } 
+  }
+  var diff = ((+new Date) - start) / cnt;
+  $("tr").eq(i + 1).find("td:last span").html(diff + "ms");
+  //if ( diff < min ) min = diff;
+  //if ( diff > max ) max = diff;
+}
+
+function runTests() 
+{
+  var start, end, diff, min = 0, max = 0;
+  var i1 = 0;
+  var cnt = parseInt( $("#cnt").val(), 10);
+  $(".progress").addClass("orange");
+  (function go() {
+    start = +new Date;
+    for (var y = 0; y < cnt; y++) {
+      try {
+        eval(TESTS[i1].code);
+      } catch (ex) {
+        alert( ex );
+        return;
+      } 
+    }
+    diff = ((+new Date) - start) / cnt;
+    if ( diff < min ) min = diff;
+    if ( diff > max ) max = diff;
+    
+    $("tr").eq(i1 + 1).find("td:last span").html(diff + "ms");
+    showProgress()
+    if ( ++i1 < TESTS.length ) {
+      setTimeout(go, 1);
+    } else $(".progress").removeClass("orange");/*else {
+      var x = max - min, td;
+      for ( var i = 1; i <= TESTS.length; i++ ) {
+        td = $("tr").eq(i).find("td:last");
+        td.append('<div class="progress" align="left" style="width:' + 
+        ( ( parseFloat(td.html()) / x) * 100 ) + '%"/>');
+      }
+    }*/
+  })();
+  
+  function showProgress() {
+    var x = max - min, td, i, txt;
+    for ( i = 1; i <= TESTS.length; i++ ) {
+      td  = $("#tests tr").eq(i).find("td:last");
+      txt = td.text();
+      if (txt) $("div", td).css("width", ( ( parseFloat(txt) / x) * 100 ) + "%");
+      //$("div", td).css("width", ( ( parseFloat(td.text()) / x) * 100 ) + "%");
+    }
+  }
+}
+
+
+function initAnimationTests() {
+  var table = '<table border="0" cellpadding="1" cellspacing="1">' + 
+  '<tr><th>Test</th><th>Code</th><th>Test</th></tr>';
+  var html, tmp, testsDiv = $("#animation_tests");
+  for ( var i = 0; i < ANIMATION_TESTS.length; i++ ) {
+    tmp = ANIMATION_TESTS[i];
+    html  = '<tr bgcolor="#' + (i%2===0 ? 'EEEEEE' : 'FFFFFF') + '">';
+    html += '<td align="right"><b>' + tmp.label + ":</b></td>";
+    html += "<td><pre contentEditable=\"true\">" + tmp.code + "</pre></td>";
+    html += '<td><input type="button" value="  Test  " onclick="testAnimation(this)" /></td>';
+    html += "</tr>";
+    table += html;
+  }
+  table += '</table>';
+  testsDiv.append(table);
+}
+
+function testAnimation(btn) {
+  var td = btn.parentNode.previousSibling;
+  try {
+    $("img:last").stop().css("transform", "none");
+    eval($(td).text().replace(/\.animate\b/, ".stop().animate"));
+  } catch (ex) {
+    try {
+      console.dir(ex);
+    } catch ( ex2 ) {
+      alert( ex );
+    }
+    return;
+  } 
+}
+</script>
+</head>
+<body onload="init();">
+<h2>jQuery.fn.css</h2><hr />
+<img src="car.jpg" />
+<input type="button" onclick="runTests()" value=" Run Tests " style="position:relative;z-index:100" />
+Note: Use "x100" or "x1000" for realistic results; Disable Firebug; Examples are editable.
+<div id="tests"></div>
+<h4>Conclusion</h4>
+1. Setters are slower than getters.<br />
+2. The Setter speed depends mostly from the setted properties count.
+<h2>Animation tests</h2>
+<img src="car.jpg" />
+<div id="animation_tests"></div>
+</body>
+</html>

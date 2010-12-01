@@ -1,0 +1,561 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>DMXzone Universal CSS Transforms Documentation</title>
+<link rel="stylesheet" type="text/css" href="style.css" /> 
+<script src="../Files/ScriptLibrary/jquery-latest.pack.js"></script>
+<script src="../Files/ScriptLibrary/jquery.easing.1.3.js"></script>
+<script src="../Files/jquery.csstransform.pack.js"></script>
+<script type="text/javascript">
+
+$(function() {  
+  
+	// populate esing selects (if any) -------------------------------------------
+  var easingSelects = $("select.easing");
+  if (easingSelects.length > 0) {
+    var html = "";
+    for (var e in $.easing) {
+      html += '<option value="' + e + '">' + e + '</option>';
+    }
+    easingSelects.html(html);
+  }
+  
+  // tabs ----------------------------------------------------------------------
+  $(".tabs > .tab").click(function() {
+    if (!$(this).is(".active")) {
+      $(".tabs > .active").removeClass("active");
+      $(this).addClass("active");
+      $(".tab_contents > div").hide()
+      .filter("#" + $(this).attr("forpannel")).show();
+    }
+  }).eq(2).click();
+  
+});
+
+function activateExamples(preId, btn) {
+  var $pre = $("#" + preId).css({ position: "relative", lineHeight: "10px" });
+  var $img = $('<img src="../Files/car.jpg" />').css({
+    position: "absolute",
+    top     : 30,
+    right   : 30
+  });
+  
+  var divs = $("div", $pre).get();
+  var cssOrAnim = '<select class="cssOrAnim"><option value="css">css</option>'
+  + '<option value="animate">animate</option></select>';
+  
+  function prepareExample() {
+    var div = $(divs.shift()), code = div.text();
+    $('<input type="button" value="Test" />')
+    .click(function() {
+      var code = $(this).parent().text()
+        .replace('$("#theimage").cssanimate', '')
+        .replace(/;$/, '');
+      try {
+        if ($("select", div).val() == "css") {
+          $img.css(eval(code));
+          $("input:text", $pre).val($img.css("transform"));
+        } else {
+          $img.animate(eval(code), 720, "swing", function() {
+            $("input:text", $pre).val($img.css("transform"));
+          });
+        }
+      } catch (ex) {
+        alert(ex.toSource());
+      }
+    })
+    .appendTo(div.html(div.html().replace('.css(', "." + cssOrAnim + "(")));
+    if (divs.length > 0) {
+      setTimeout(prepareExample, 60);
+    } 
+    else finalize();
+  }
+  
+  if (divs.length > 0) {
+    prepareExample();
+  }
+  
+  function finalize() {
+    $img.appendTo($pre);
+    $pre.append(
+      '<hr /><p align="right">Result ($("#theimage").css("transform");): ' +
+      '<input type="text" size="80" /></p>'
+    );
+  }
+  
+  $(btn).remove();
+}
+
+</script>
+</head>
+
+<body>
+  <div id="wrapper">
+    <div id="header">
+      <h1 class="test">DMXzone Universal CSS Transforms</h1>
+    </div>
+    <div class="tabs">
+      <div class="tab" forpannel="about">About</div>
+      <div class="tab" forpannel="api">API</div>
+      <div class="tab" forpannel="examples">Examples</div>
+      <div class="tab" forpannel="advanced">Advanced</div>
+      <div style="clear:both"></div>
+    </div>
+    
+    <div class="tab_contents">
+      
+      <!-- ======================= About pannel ======================= -->
+      <div id="about">
+        <div class="section">
+          <h4>What CSSTransforms does, and what it is not able to do</h4>
+          <p>
+            &bull; CSSTransforms IS NOT a jQuery plugin, but a patch for some of it's built-in methods 
+            (a plugin needs to be released later, to handle some advanced issues).
+          </p>
+          <p>
+            The <b>transform</b> CSS property is by definition a list of transformation functions.
+            This is probably the most complex type of css property (not a primitive value and not even a value list).
+            It is a combination of one or more (up to 11) different functions, each of witch can be used more than once.
+            Also, the order DOES matter.
+          </p>
+          <p>
+            CSSTransforms is designed to be as simple to use, as possible. It attempts to provide
+            a "native" support for those transform functions to jQuery. It is neither possible to make this simple,
+            nor possible to support this in the jQuery way, so we have chosen different approach here.
+            For the sake of functionality and simplicity, we do limit the transform property to a set of 
+            unique functions only. For example, if an element has a rotation and skew applied, setting a rotation 
+            will replace the existing one (in other words, each transform functions, can be used only once).
+            This brings some limitations, but still covers 90% of use cases and allows us to make other
+            useful things, like supporting a preparatory css properties and mixing them with the regular ones...
+          </p>
+          <p>
+            All of the CSS transformation function names have been made available for use as a CSS property names
+            with the $.fn.css() method. Those are:
+            <ul>
+              <li><b><i>matrix</i></b></li>
+              <li><b><i>rotate</i></b></li>
+              <li><b><i>scale</i></b></li>
+              <li><b><i>scaleX</i></b></li>
+              <li><b><i>scaleY</i></b></li>
+              <li><b><i>skew</i></b></li>
+              <li><b><i>skewX</i></b></li>
+              <li><b><i>skewY</i></b></li>
+              <li><b><i>translate</i></b></li>
+              <li><b><i>translateX</i></b></li>
+              <li><b><i>translateY</i></b></li>
+            </ul>
+          </p>
+          <p> These can also be animated, but see the limitations bellow</p>
+          <p>
+            Additionally the following are considered very useful and also supported:
+            <ul>
+              <li><b><i>transform</i></b>
+                <ol>
+                  <li>
+                    Aliases current transform property name. For example in gecko it's the same as &quot;MozTransform&quot;, or in Webkit -
+                    &quot;WebkitTransform&quot;..., so just use &quot;transform in any browser&quot; (This also works in IE, or in other old browsers 
+                    with no CSS transform support). 
+                  </li>
+                  <li>
+                    When used to set a transform (like $(elements).css("transform", cssstring);), the value is expected to be
+                    a valid css transform value, but it is less restrictive, than in CSS (will be parsed, unsupported functions
+                    will be ignored, all units are optional and so on).
+                  </li>
+                </ol>
+              </li>
+              <li><b><i>multiplied-matrix</i></b> 
+                - read only (available when using $.fn.css with a single strange argument "multiplied-matrix") 
+                returns a matrix, representing the current multiplied matrix.
+                This means, that all the current transformation functions applied, are &quot;merged&quot; together and
+                represented as a single matrix. It is useful to have a &quot;<b><i>multiplied-matrix</i></b>&quot; property, because
+                the matrix multiplication is a complex task, and now we just have it's result at any time...</li>
+            </ul>
+          </p>
+        </div>
+        <br />
+        <div class="section">
+          <h4> Limitations </h4>
+          <ol>
+            <li>Given CSS property can not be used more than once.</li>
+            <li>You can mix transform properties, but you can not order them.</li>
+            <li>"matrix" property can not be animated</li>
+            <li>Only a single-argument functions can be animated. Others can be used as "subtype" functions:
+              <ul>
+                <li>Instead of <b>scale</b> use scaleX and scaleY</li>
+                <li>Instead of <b>skew</b> use skewX and skewY</li>
+                <li>Instead of <b>translate</b> use translateX and translateY</li>
+              </ul>
+            </li>
+            <li>
+              The transform-origin property is not implemented 
+              (for IE and older browser)
+            </li>
+          </ol>
+        </div>
+        <br />
+        <div class="section">
+          <h4> Additional resources </h4>
+          <ul>
+            <li><a href="http://www.w3.org/TR/2009/WD-css3-2d-transforms-20091201/" target="_blank">CSS 2D Transforms Module Level 3</a></li>
+            <li><a href="http://dev.opera.com/articles/view/css3-transitions-and-2d-transforms/#transforms" target="_blank">2D Transforms (dev.opera.com)</a></li>
+            <li><a href="https://developer.mozilla.org/En/CSS/-moz-transform" target="_blank">-moz-transform</a> (MDC)</li>
+          </ul>
+        </div>
+      </div>
+      
+      <!-- ======================== API pannel ======================== -->
+      <div id="api">
+        <div class="section">
+          <h4>Using $.fn.css()</h4>
+          <p>
+            In jQuery $.fn.css() is used to get or set a css property of the element.
+            One specific thing to note is that when used as a getter, it is queering the
+            computed style, so always returns a value (even is one is not specified
+            by the developer).
+          </p>
+          
+          <p>
+            We have patched it to support the css transform function names as css property names
+            (plus some others :-) ):
+          </p>
+          <p>
+            <table border="0" align="center" cellpadding="2" cellspacing="1" class="property-table">
+              <caption> Available CSS Properties </caption>
+              <tr>
+                <th align="left">Name</th>
+                <th>GET Returns</th>
+                <th nowrap="nowrap">Identity</th>
+                <th>SET argument</th>
+                <th>Units</th>
+                <th>Can be relative</th>
+                <th>Can be animated</th>
+              </tr>
+              <tr>
+                <th align="left">matrix</th>
+                <td>string like &quot;matrix(1, 2, 3, 4, 5, 6)&quot;<span class="asterix">*</span></td>
+                <td nowrap="nowrap">&quot;matrix(1, 0, 0, 1, 0, 0)&quot;<span class="asterix">*</span></td>
+                <td>6 float numbers as Array, or comma separated list</td>
+                <td>none<span class="asterix">*</span></td>
+                <td>Yes</td>
+                <td>No</td>
+              </tr>
+              <tr>
+                <th align="left">rotate</th>
+                <td>string like &quot;rotate(30deg)&quot;</td>
+                <td nowrap="nowrap">&quot;rotate(0deg)&quot;</td>
+                <td>single float number as number, or string, or as array entry. </td>
+                <td>&quot;deg&quot; - optional</td>
+                <td>Yes</td>
+                <td>Yes</td>
+              </tr>
+              <tr>
+                <th align="left">scale</th>
+                <td>string like &quot;scale(1, 2)&quot;</td>
+                <td nowrap="nowrap">&quot;scale(1, 1)&quot;</td>
+                <td>one or two float numbers as comma-separated list or array</td>
+                <td>none</td>
+                <td>Yes</td>
+                <td>No (use scaleX and scaleY instead)</td>
+              </tr>
+              <tr>
+                <th align="left">scaleX</th>
+                <td>string like  &quot;scaleX(1)&quot;</td>
+                <td nowrap="nowrap">&quot;scaleX(1)&quot;</td>
+                <td>single float number as number, or string, or as array entry.</td>
+                <td>none</td>
+                <td>Yes</td>
+                <td>Yes</td>
+              </tr>
+              <tr>
+                <th align="left">scaleY</th>
+                <td>string like  &quot;scaleY(2)&quot;</td>
+                <td nowrap="nowrap">&quot;scaleY(1)&quot;</td>
+                <td>single float number as number, or string, or as array entry.</td>
+                <td>none</td>
+                <td>Yes</td>
+                <td>Yes</td>
+              </tr>
+              <tr>
+                <th align="left">skew</th>
+                <td>string like &quot;skew(10deg, 20deg)&quot;</td>
+                <td nowrap="nowrap">&quot;skew(0deg, 0deg)&quot;</td>
+                <td>one or two float numbers as comma-separated list or array</td>
+                <td>&quot;deg&quot; - optional</td>
+                <td>Yes</td>
+                <td>No (use skewX and skewY instead)</td>
+              </tr>
+              <tr>
+                <th align="left">skewX</th>
+                <td>string like &quot;skewX(10deg)&quot;</td>
+                <td nowrap="nowrap">&quot;skewX(0deg)&quot;</td>
+                <td>single float number as number, or string, or as array entry.</td>
+                <td>&quot;deg&quot; - optional</td>
+                <td>Yes</td>
+                <td>Yes</td>
+              </tr>
+              <tr>
+                <th align="left">skewY</th>
+                <td>string like &quot;skewY(20deg)&quot;</td>
+                <td nowrap="nowrap">&quot;skewY(0deg)&quot;</td>
+                <td>single float number as number, or string, or as array entry.</td>
+                <td>&quot;deg&quot; - optional</td>
+                <td>Yes</td>
+                <td>Yes</td>
+              </tr>
+              <tr>
+                <th align="left">translate</th>
+                <td>string like &quot;translate(10px, 20px)&quot;</td>
+                <td nowrap="nowrap">&quot;translate(0px, 0px)&quot;</td>
+                <td>one or two float numbers as comma-separated list or array</td>
+                <td>&quot;px&quot; - optional</td>
+                <td>Yes</td>
+                <td>No (use translateX and translateY instead)</td>
+              </tr>
+              <tr>
+                <th align="left">translateX</th>
+                <td>string like &quot;translateX(10px)&quot;</td>
+                <td nowrap="nowrap">&quot;translateX(0px)&quot;</td>
+                <td>single float number as number, or string, or as array entry.</td>
+                <td>&quot;px&quot; - optional</td>
+                <td>Yes</td>
+                <td>Yes</td>
+              </tr>
+              <tr>
+                <th align="left">translateY</th>
+                <td>string like &quot;translateY(20px)&quot;</td>
+                <td nowrap="nowrap">&quot;translateY(0px)&quot;</td>
+                <td>single float number as number, or string, or as array entry.</td>
+                <td>&quot;px&quot; - optional</td>
+                <td>Yes</td>
+                <td>Yes</td>
+              </tr>
+              <tr>
+                <th align="left">transform</th>
+                <td>string - space separated list of transform functions like &quot;rotate(30deg) skewX(12deg)&quot;</td>
+                <td nowrap="nowrap">&quot;none&quot;</td>
+                <td>transform CSS (space separated list of transform functions)</td>
+                <td>N/A </td>
+                <td>No</td>
+                <td>No</td>
+              </tr>
+              <tr>
+                <th align="left">multiplied-matrix</th>
+                <td>string like &quot;matrix(1, 2, 3, 4, 5, 6)&quot;<span class="asterix">*</span></td>
+                <td nowrap="nowrap">&quot;matrix(1, 0, 0, 1, 0, 0)&quot;<span class="asterix">*</span></td>
+                <td>N/A (read only)</td>
+                <td>N/A </td>
+                <td>N/A</td>
+                <td>N/A (read only)</td>
+              </tr>
+            </table>
+          </p>
+          <p>
+            <span class="asterix">*</span> - Gecko requires units to be used for translate arguments of the matrix. 
+            If used in Mozilla, the code will automatically append "px" to them, so matrices will look like
+            "matrix(1, 0, 0, 1, 0px, 0px)".
+          </p>
+          <p>
+            <ul>
+              <li>
+                <b>GET Returns</b> - The "GET Returns" column shows what can be expected, while using
+                $.fn.css() as a getter. The return value is always a valid and formatted CSS transform value fragment.
+                If the transformation was not applied to the element, the <b>Identity</b> function will be returned.
+              </li>
+              <li>
+                <b>Identity</b> - Each transformation function has it's identity call (it does nothing).
+                Note: For "transform" browsers use identity value of "none", but the official recommendation has changed.
+                It is now preferring an identity matrix to be returned, so this can be changed in the future...
+              </li>
+              <li>
+                <b>SET argument</b> - If the property can be changed with $.fn.css(), this column describes what kind of
+                argument can be used. Basically, all arguments (one or more) are floating point numbers (or will be converted).
+                All units are optional. In all cases, to use a relative values, the argument must be a string, prefixed with
+                "+=" or "-=".
+                <br />
+                Usage Summary:
+                <ul>
+                  <li>Single argument
+                    <ul>
+                      <li>as number: $(element).css("skew", 30);</li>
+                      <li>as string: 
+                        $(element).css("skew", "30"); or 
+                        $(element).css("skew", "30deg"); or 
+                        $(element).css("skew", "-=30"); or
+                        $(element).css("skew", "-=30deg");
+                      </li>
+                      <li>as array: 
+                        $(element).css("skew", [30]); or 
+                        $(element).css("skew", ["30"]); or
+                        $(element).css("skew", ["30deg"]); or
+                        $(element).css("skew", ["+=30"]); ...
+                      </li>
+                    </ul>
+                  </li>
+                  <li>Multiple arguments
+                    <ul>
+                      <li>as string: 
+                        $(element).css("skew", "30, 22deg"); or 
+                        $(element).css("skew", "30, 20"); or 
+                        $(element).css("skew", "-=30, +=2"); or
+                        $(element).css("skew", "-=30deg, 44");..
+                      </li>
+                      <li>as array: 
+                        $(element).css("skew", [30, "22deg"]); or 
+                        $(element).css("skew", [30, 20]); or
+                        $(element).css("skew", ["-=30", "+=2"]); or
+                        $(element).css("skew", ["-=30deg", 44]); ...
+                      </li>
+                    </ul>
+                  </li>
+                  <li>
+                    For "transform" the argument is a single string - function list.
+                    Same as in CSS, but the units are optional.
+                  </li>
+                  <li>multiplied-matrix can not be set</li>
+                </ul>
+              </li>
+              <li>
+                <b>Units</b> - What units are used. This is for information only. All units are
+                optional. In fact, units are useless, because the script will strip them, and re add
+                them later as needed. One limitation is that currently the only supported length
+                unit is "px", so it will be used for all lengths (translate, translateX, translateY).
+              </li>
+              <li>
+                <b>Can be relative</b> - See SET argument for "how to use" examples
+              </li>
+              <li>
+                <b>Can be animated</b> - Unfortunately, not all can be animated 
+                (only those, that can be parsed to a single number value)
+              </li>
+            </ul>
+          </p>
+        </div>
+      </div>
+      
+      <div id="examples">
+        <p>
+        <b>Notes:</b>
+        <ul>
+          <li class="red">As you can see, examples in red (using value lists) cannot be properly animated.</li>
+          <li>
+            If some example does not seem to work, make sure that the current style
+            (displayed at the "Result" field) is not the same, as the one that example is trying to set...
+          </li>
+          <li>For animated examples, the duration is hardcoded to 720ms, and the easing to "swing".</li>
+        </ul>
+        </p>
+        <div class="section">
+          <h4>rotate <input type="button" value="Make interactive" onclick="activateExamples('rotate_examples', this);" /></h4>
+          <pre class="example" id="rotate_examples">
+          <div>$("#theimage").css({ "rotate": 30       });</div>
+		  <div>$("#theimage").css({ "rotate": "+=30deg"});</div>
+          <div>$("#theimage").css({ "rotate": -30      });</div>
+          <div>$("#theimage").css({ "rotate": "-=30"   });</div>
+          <div>$("#theimage").css({ "rotate": ["+=15"] });</div>
+          <div>$("#theimage").css({ "rotate": [10]     });</div></pre>
+        </div>
+        <div class="section">
+          <h4>skew <input type="button" value="Make interactive" onclick="activateExamples('skew_examples', this);" /></h4>
+          <pre class="example" id="skew_examples">
+                      <div>$("#theimage").css({ "skew": 30             });</div>
+          <div class="red">$("#theimage").css({ "skew": "30, 10"       });</div>
+          <div class="red">$("#theimage").css({ "skew": "30deg, 10"    });</div>
+          <div class="red">$("#theimage").css({ "skew": ["30", "+=10"] });</div>
+          <div class="red">$("#theimage").css({ "skew": [20, 140]      });</div>
+                      <div>$("#theimage").css({ "skew": "-=30"         });</div>
+                      <div>$("#theimage").css({ "skew": [55]           });</div></pre>
+        </div>
+        <div class="section">
+          <h4>skewX <input type="button" value="Make interactive" onclick="activateExamples('skewX_examples', this);" /></h4>
+          <pre class="example" id="skewX_examples">
+          <div>$("#theimage").css({ "skewX": 30      });</div>
+          <div>$("#theimage").css({ "skewX": -30     });</div>
+          <div>$("#theimage").css({ "skewX": "-=30"  });</div>
+          <div>$("#theimage").css({ "skewX": ["+=15"]});</div>
+          <div>$("#theimage").css({ "skewX": [10]    });</div></pre>
+          </pre>
+        </div>
+        <div class="section">
+          <h4>skewY <input type="button" value="Make interactive" onclick="activateExamples('skewY_examples', this);" /></h4>
+          <pre class="example" id="skewY_examples">
+          <div>$("#theimage").css({ "skewY": 30      });</div>
+          <div>$("#theimage").css({ "skewY": -30     });</div>
+          <div>$("#theimage").css({ "skewY": "-=30"  });</div>
+          <div>$("#theimage").css({ "skewY": ["+=15"]});</div>
+          <div>$("#theimage").css({ "skewY": [10]    });</div></pre>
+        </div>
+        <div class="section">
+          <h4>scale <input type="button" value="Make interactive" onclick="activateExamples('scale_examples', this);" /></h4>
+          <pre class="example" id="scale_examples">
+                      <div>$("#theimage").css({ "scale": 2               });</div>
+          <div class="red">$("#theimage").css({ "scale": "2, 0.5"        });</div>
+          <div class="red">$("#theimage").css({ "scale": "1.3, 1"        });</div>
+          <div class="red">$("#theimage").css({ "scale": ["3", "+=0.10"] });</div>
+                      <div>$("#theimage").css({ "scale": "-=0.3"         });</div>
+                      <div>$("#theimage").css({ "scale": [2]             });</div></pre>
+        </div>
+        <div class="section">
+          <h4>scaleX <input type="button" value="Make interactive" onclick="activateExamples('scaleX_examples', this);" /></h4>
+          <pre class="example" id="scaleX_examples">
+          <div>$("#theimage").css({ "scaleX": 3         });</div>
+          <div>$("#theimage").css({ "scaleX": -0.3      });</div>
+          <div>$("#theimage").css({ "scaleX": "-=0.3"   });</div>
+          <div>$("#theimage").css({ "scaleX": ["+=1.5"] });</div>
+          <div>$("#theimage").css({ "scaleX": [2]       });</div></pre>
+        </div>
+        <div class="section">
+          <h4>scaleY <input type="button" value="Make interactive" onclick="activateExamples('scaleY_examples', this);" /></h4>
+          <pre class="example" id="scaleY_examples">
+          <div>$("#theimage").css({ "scaleY": 3         });</div>
+          <div>$("#theimage").css({ "scaleY": -0.3      });</div>
+          <div>$("#theimage").css({ "scaleY": "-=0.3"   });</div>
+          <div>$("#theimage").css({ "scaleY": ["+=1.5"] });</div>
+          <div>$("#theimage").css({ "scaleY": [2]       });</div></pre>
+        </div>
+        <div class="section">
+          <h4>translate <input type="button" value="Make interactive" onclick="activateExamples('translate_examples', this);" /></h4>
+          <pre class="example" id="translate_examples">
+                      <div>$("#theimage").css({ "translate": 200              });</div>
+          <div class="red">$("#theimage").css({ "translate": "120, 50"        });</div>
+          <div class="red">$("#theimage").css({ "translate": "130px, 100"     });</div>
+          <div class="red">$("#theimage").css({ "translate": ["30", "+=10px"] });</div>
+                      <div>$("#theimage").css({ "translate": "-=30px"         });</div>
+                      <div>$("#theimage").css({ "translate": [120]            });</div></pre>
+        </div>
+        <div class="section">
+          <h4>translateX <input type="button" value="Make interactive" onclick="activateExamples('translateX_examples', this);" /></h4>
+          <pre class="example" id="translateX_examples">
+          <div>$("#theimage").css({ "translateX": 30       });</div>
+          <div>$("#theimage").css({ "translateX": -11      });</div>
+          <div>$("#theimage").css({ "translateX": "-=30px" });</div>
+          <div>$("#theimage").css({ "translateX": ["+=15"] });</div>
+          <div>$("#theimage").css({ "translateX": [20]     });</div></pre>
+        </div>
+        <div class="section">
+          <h4>translateY <input type="button" value="Make interactive" onclick="activateExamples('translateY_examples', this);" /></h4>
+          <pre class="example" id="translateY_examples">
+          <div>$("#theimage").css({ "translateY": 30       });</div>
+          <div>$("#theimage").css({ "translateY": -11      });</div>
+          <div>$("#theimage").css({ "translateY": "-=30px" });</div>
+          <div>$("#theimage").css({ "translateY": ["+=15"] });</div>
+          <div>$("#theimage").css({ "translateY": [20]     });</div></pre>
+        </div>
+        <div class="section">
+          <h4>matrix <input type="button" value="Make interactive" onclick="activateExamples('matrix_examples', this);" /></h4>
+          <pre class="example" id="matrix_examples">
+          <div class="red">$("#theimage").css({ "matrix": "3, 2, 1, 0, 20, -45"                  });</div>
+          <div class="red">$("#theimage").css({ "matrix": [1, 2, 3, "4", "-20px", 45]            });</div>
+          <div class="red">$("#theimage").css({ "matrix": "-=0.3, +=0.2, +=0.1, -=0.5, +=2, +=5" });</div></pre>
+        </div>
+      </div>
+      
+      <div id="advanced">
+        No time for advanced :-)
+      </div>
+      
+    </div>
+  </div>
+</body>
+</body>
+</html>
