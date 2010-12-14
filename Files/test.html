@@ -1,450 +1,355 @@
-<html> 
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<title>FX Tests</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>this is a test</title>
 <style>
-* {
-  font-family: Verdana, Tahoma, sans-serif;
-  font-size: 10px;
-}
-table {
-  background-color:#AAA;
-}
-.progress {
-  background-color: #3C0;
-  height: 6px;
-  margin: 0;
-  max-width:100%;
-  width: 0px;
-  background: -webkit-gradient(linear, left top, left bottom, from(#9C0), to(#060), color-stop(0.2, #Df5), color-stop(0.49, #Cf3), color-stop(0.5, #9C0), color-stop(0.8, #AA0));
-  -webkit-box-shadow: 1px 1px 3px rgba(0,0,0,0.4);
-  -webkit-border-radius: 3px;
-  -moz-box-shadow: 1px 1px 3px rgba(0,0,0,0.4);
-  -moz-border-radius: 3px;
-  border: 1px solid  rgba(0,0,0,0.3);
-  border-color: rgba(0,0,0,0.2) rgba(0,0,0,0.5) rgba(0,0,0,0.6) rgba(0,0,0,0.3);
-  background: -moz-linear-gradient(-90deg, #9F0, #390);
-}
-.orange {
-  background: #F90;
-  background: -webkit-gradient(linear, left top, left bottom, from(#F90), to(#C00), color-stop(0.2, #FD5), color-stop(0.49, #F90), color-stop(0.5, #C60), color-stop(0.9, #963));
-  background: -moz-linear-gradient(-90deg, #F90, #FD5 20%, #F90 49%, #C60 50%, #963 90%, #C00);
-}
-
-* html .progress {
-  background: #3C0;
-}
-
-* html .orange {
-  background: #F90;
-}
-
-th {
-  background-color:#CCC;
-  font-weight: bold;
-  background: -webkit-gradient(linear, left top, left bottom, from(#EEE), to(#D0D0D0), color-stop(0.49, #E6E6E6), color-stop(0.5, #DDD));
-  background: -moz-linear-gradient(-90deg, #EEE, #E6E6E6 49%, #DDD 50%, #D0D0D0);
-  border: 1px solid #CCC;
-  border-color: #FFF #DDD #C6C6C6 #DDD;
-  text-shadow: 1px 1px 0px #FFF;
-  -moz-border-radius: 1px;
-}
-th, td {
-  height: 26px;
-}
-pre {
-  margin:0;
-  padding : 0;
-  font-family: monospace;
-  font-size:11px;
-}
-tr:hover {
-  background-color: #BBF;
-}
-tr.active, tr.active:hover {
-  background-color: #FD6;
-}
-h2 {
-  font-family: Arial, sans-serif;
-  font-size: 24px;
-}
+	body {
+		font-family: Tahoma, sans-serif;
+    font-size: 12px;
+	}
+	input[type="text"], select {
+    width:80px;
+  }
+	.toolbar {
+		position:fixed;
+		z-index:100000;
+		/*background-color:rgb(230, 230, 230);*/
+		background-color:rgba(230, 230, 230, 0.5);
+		border:1px solid #CCC;
+		padding:6px;
+    top:0;
+    left:0;
+	}
+	.toolbar, .toolbar input {
+		font-family:Tahoma, sans-serif;
+		font-size:11px;
+	}
+	
+	.tested {
+		border: 0px solid red;
+    background-color:#CCC;
+    /*zoom:1;*/
+	}
 </style>
-<script type="text/javascript" src="ScriptLibrary/jquery-latest.pack.js"></script>
-<script type="text/javascript" src="ScriptLibrary/jquery.easing.1.3.js"></script>
-<script type="text/javascript" src="jquery.csstransform.pack.js"></script>
-<script>
-function callback(o) {
-  return "+=0.001";
+<script type="text/javascript">
+var ELEMENT, TRANSFORM_ORIGN_ELEMENT, FPS, ACTION, METHOD;
+var props = [
+  "position", "outline", "width", "float", 
+  "align", "display", "fontSize", "height", 
+  "lineHeight", "top", "marginTop", "paddingTop", 
+  "borderTopWidth", "right", "marginRight", "paddingRight", 
+  "borderRightWidth", "bottom", "marginBottom", "paddingBottom", 
+  "borderBottomWidth", "left", "marginLeft", "paddingLeft", 
+  "borderLeftWidth", "transformOrigin"
+];
+
+function setTransformOrign() {
+  var origin = TRANSFORM_ORIGN_ELEMENT.value;
+  ELEMENT[0].style.WebkitTransformOrigin = origin;
+  ELEMENT[0].style.MozTransformOrigin    = origin;
+  ELEMENT[0].style.OTransformOrigin      = origin;
+  ELEMENT[0].style.transformOrigin       = origin;
+  ELEMENT[0].style.KhtmlTransformOrigin  = origin;
+  ELEMENT[0].style["-ms-transform-origin"] = origin;
 }
 
-var TESTS = [
-  {
-    label: "Read CSS property",
-    code : '$("img:first").css("border")'
-  },
-  {
-    label: "Write CSS property",
-    code : '$("img:first").css("border", "20px solid red")'
-  },
-  {
-    label: "Read CSS Transform property (first one)",
-    code : '$("img:first").css("rotate")'
-  },
-  {
-    label: "Read CSS Transform property (first one)",
-    code : '$("img:first").css("rotate.0")'
-  },
-  {
-    label: "Read CSS Transform property (NOT first one)",
-    code : '$("img:first").css("rotate.5")'
-  },
-  {
-    label: "Write CSS Transform property (first one)",
-    code : '$("img:first").css("rotate", 30)'
-  },
-  {
-    label: "Write CSS Transform property (first one)",
-    code : '$("img:first").css("rotate.0", 30)'
-  },
-  {
-    label: "Write CSS Transform property (NOT first one)",
-    code : '$("img:first").css("rotate.5", 30)'
-  },
-  {
-    label: "Set numeric value",
-    code : '$("img:first").css("rotate.5", 30)'
-  },
-  {
-    label: "Set string value",
-    code : '$("img:first").css("rotate.5", "30")'
-  },
-  {
-    label: "Set standart value",
-    code : '$("img:first").css("rotate.5", "30deg")'
-  },
-  {
-    label: "Set relative value",
-    code : '$("img:first").css("rotate", "+=30")'
-  },
-  {
-    label: "Set relative value",
-    code : '$("img:first").css("rotate", "-=30")'
-  },
-  {
-    label: "Set relative value",
-    code : '$("img:first").css("rotate", "*=30")'
-  },
-  {
-    label: "Set relative value",
-    code : '$("img:first").css("rotate", "/=30")'
-  },
-  {
-    label: "Set relative value",
-    code : '$("img:first").css("rotate", "%=30")'
-  },
-  {
-    label: "Set array value",
-    code : '$("img:first").css("rotate", [30])'
-  },
-  {
-    label: "Set function value",
-    code : '$("img:first").css("rotate", function() { return 30; })'
-  },
-  {
-    label: "All arguments",
-    code : '$("img:first").css("matrix", [1.1, 0.2, 0.5, 2.1, 4, 6])'
-  },
-  {
-    label: "Missing arguments",
-    code : '$("img:first").css("matrix", [1.1, 0.2])'
-  },
-  {
-    label: "Set value list",
-    code : '$("img:first").css("matrix", "1.1, 0.2, 0.5, 2.1, 4, 6")'
-  },
-  {
-    label: "Set value array",
-    code : '$("img:first").css("matrix", [1.1, 0.2, 0.5, 2.1, 4, 6])'
-  },
-  {
-    label: "Set relative values list",
-    code : '$("img:first").css("matrix", "+=0.001, +=0.002, +=0.005, +=0.001, +=0.04, +=0.006")'
-  },
-  {
-    label: "Set relative values array",
-    code : '$("img:first").css("matrix", ["+=0.001", "+=0.002", "+=0.005", "+=0.001", "+=0.04", "+=0.006"])'
-  },
-  {
-    label: "Set relative values array",
-    code : '$("img:first").css("matrix", [callback, callback, callback, callback, callback, callback])'
-  },
-  {
-    label: "Set nested function",
-    code : '$("img:first").css("matrix", function() { return [callback, callback, callback, callback, callback, callback] })'
-  },
-  {
-    label: "Set multiple transform functions",
-    code : '$("img:first").css({"matrix": [1.1, 0.2, 0.5, 2.1, 4, 6], rotate: 30, skew: [12, 27], scale: [0.82, 1.77], translate: "-20, -45" })'
-  },
-  {
-    label: "Mix transform and CSS2 properties",
-    code : '$("img:first").css({rotate: 30, skew: [12, 27], top: "77px", height: "100px", left: "37px" })'
-  },
-  {
-    label: "Mix transform and CSS3 properties",
-    code : '$("img:first").css({rotate: 30, "skew.1": [27, 12], boxShadow: "7px 7px 7px #000", opacity: 0.3, borderRadius: 45 })'
-  }
-  
-];
-
-var ANIMATION_TESTS = [
-  {
-    label: "matrix",
-    code : '$("img:last").animate({ matrix: [-1.5, 2.5, 0.5, 3.5, 40.5, 30.5] }, 1440);'
-  },
-  {
-    label: "matrix3d",
-    code : '$("img:last").animate({ matrix3d : [1.5, 0.5, 0.5, 0.5, 0.5, 1.5, 0.5, 0.5, 0.5, 0.5, 1.5, 0.5, 0.5, 0.5, 0.5, 1.5] }, 1440);'
-  },
-  {
-    label: "rotate",
-    code : '$("img:last").animate({ rotate: 120 }, 1440);'
-  },
-  {
-    label: "rotateX",
-    code : '$("img:last").animate({ rotateX: 120 }, 1440);'
-  },
-  {
-    label: "rotateY",
-    code : '$("img:last").animate({ rotateY: 120 }, 1440);'
-  },
-  {
-    label: "rotateZ",
-    code : '$("img:last").animate({ rotateZ: 120 }, 1440);'
-  },
-  {
-    label: "rotate3d",
-    code : '$("img:last").animate({ rotate3d : [100, 100, 150, 30] }, 1440);'
-  },
-  {
-    label: "scale",
-    code : '$("img:last").animate({ scale: [2, 2] }, 1440);'
-  },
-  {
-    label: "scaleX",
-    code : '$("img:last").animate({ scaleX: 2 }, 1440);'
-  },
-  {
-    label: "scaleY",
-    code : '$("img:last").animate({ scaleY: 2 }, 1440);'
-  },
-  {
-    label: "scaleZ",
-    code : '$("img:last").animate({ scaleZ: 2 }, 1440);'
-  },
-  {
-    label: "scale3d",
-    code : '$("img:last").animate({ scale3d : [2, 3, 4] }, 1440);'
-  },
-  {
-    label: "translate",
-    code : '$("img:last").animate({ translate: [100, 100] }, 1440);'
-  },
-  {
-    label: "translateX",
-    code : '$("img:last").animate({ translateX: 100 }, 1440);'
-  },
-  {
-    label: "translateY",
-    code : '$("img:last").animate({ translateY: 100 }, 1440);'
-  },
-  {
-    label: "translateZ",
-    code : '$("img:last").animate({ translateZ: 100 }, 1440);'
-  },
-  {
-    label: "translate3d",
-    code : '$("img:last").animate({ translate3d : [100, 200, 300] }, 1440);'
-  },
-  {
-    label: "skew",
-    code : '$("img:last").animate({ skew: [35, 15] }, 1440);'
-  },
-  {
-    label: "skewX",
-    code : '$("img:last").animate({ skewX: 35 }, 1440);'
-  },
-  {
-    label: "skewY",
-    code : '$("img:last").animate({ skewY: 35 }, 1440);'
-  },
-  {
-    label: "perspective",
-    code : '$("img:last").animate({ perspective : 200 }, 1440);'
-  },
-  {
-    label: "transform",
-    code : '$("img:last").animate({ transform : "rotate(120) skew(35, 12)" }, 1440);'
-  },
-  {
-    label: "rotate before translate",
-    code : '$("img:last").animate({ "rotate": 120, translate: [100, 100] }, 1440);'
-  },
-  {
-    label: "rotate after translate",
-    code : '$("img:last").animate({ "translate.0": [100, 100], rotate: 120 }, 1440);'
-  },
-  {
-    label: "Mix 1",
-    code : '$("img:last").animate({ ' + 
-      'translate: [100, 100], ' + 
-      'scale: 3, ' + 
-      'rotate: 120, ' + 
-      'skew: "120, 200", ' + 
-      'scale: 0.5' + 
-      '}, 1440);'
-  },
-  {
-    label: "Mix 2",
-    code : '$("img:last").animate({ opacity: 0.8, "translate.0": [100, 200], "rotate.0": 3600, "translate.1": [400, 20], "rotate.1": -720 }, 1440);'
-  }
-];
+function refreshCss(init) {
+  var style = {};
+  $.each(props, function(i, name) {
+    if (init === true) {
+      style[name] = ELEMENT.css(name);
+      $("#" + name).val(style[name]);
+    } else {
+      style[name] = $("#" + name).val();
+    }
+  });
+  ELEMENT.css(style);
+  resetFPS();
+}
 
 function init() {
-  var table = '<table border="0" cellpadding="1" cellspacing="1">' + 
-  '<tr><th>Test</th><th>Code</th><th><select id="cnt"><option value="1">x1</option>' +
-  '<option value="100">x100</option><option value="1000">x1000</option></select>' + 
-  '</th><th>Result</th></tr>';
-  var html, tmp, testsDiv = $("#tests");
-  for ( var i = 0; i < TESTS.length; i++ ) {
-    tmp = TESTS[i];
-    html  = '<tr bgcolor="#' + (i%2===0 ? 'EEEEEE' : 'FFFFFF') + '">';
-    html += '<td><b>' + tmp.label + ":</b></td>";
-    html += "<td><pre contentEditable=\"true\">" + tmp.code + "</pre></td>";
-    html += '<td align="center"><input type="button" value="  Test  " onclick="test(' + i + ')" /></td>';
-    html += '<td width="100"><span/><div class="progress" align="left" /></td>';
-    html += "</tr>";
-    table += html;
-  }
-  table += '</table>';
-  testsDiv.append(table)
-  
-  initAnimationTests();
-  
-  //$("table").each(function(i, t) {
-    $("tr").not(":first").click(function() {
-      $(this).toggleClass("active");
+	$.each(props, function(i, name) {
+    ELEMENT = $(".tested:visible");
+    TRANSFORM_ORIGN_ELEMENT = $("#transformOrigin")[0];
+    FPS = $("#fps")[0];
+    ACTION = $('input[name="act"]');
+    METHOD = $("#method");
+    $("#" + name).bind("change", function() {
+      refreshCss();
     });
-  //});
-}
+	});
 
-function test( i ) {
-  var start = +new Date;
-  var cnt = parseInt( $("#cnt").val(), 10);
-  var code = $("#tests tr").eq(i + 1).find("td:eq(1) > pre").text();
-  for (var y = 0; y < cnt; y++) {
-    try {
-      eval(code);
-    } catch (ex) {
-      alert( ex );
-      return;
-    } 
-  }
-  var diff = ((+new Date) - start) / cnt;
-  $("tr").eq(i + 1).find("td:last span").html(diff + "ms");
-  //if ( diff < min ) min = diff;
-  //if ( diff > max ) max = diff;
-}
+  refreshCss();
+  setInterval(function() {
+    FPS.innerHTML = fps_val;
+  }, 300)
+};
 
-function runTests() 
-{
-  var start, end, diff, min = 0, max = 0;
-  var i1 = 0;
-  var cnt = parseInt( $("#cnt").val(), 10);
-  $(".progress").addClass("orange");
-  (function go() {
-    start = +new Date;
-    for (var y = 0; y < cnt; y++) {
-      try {
-        eval(TESTS[i1].code);
-      } catch (ex) {
-        alert( ex );
-        return;
-      } 
-    }
-    diff = ((+new Date) - start) / cnt;
-    if ( diff < min ) min = diff;
-    if ( diff > max ) max = diff;
+var last_fps, fps_val = "Not available";
+function doTransform() {
+  if (doTransform.timeout) 
+    clearTimeout(doTransform.timeout);
     
-    $("tr").eq(i1 + 1).find("td:last span").html(diff + "ms");
-    showProgress()
-    if ( ++i1 < TESTS.length ) {
-      setTimeout(go, 1);
-    } else $(".progress").removeClass("orange");/*else {
-      var x = max - min, td;
-      for ( var i = 1; i <= TESTS.length; i++ ) {
-        td = $("tr").eq(i).find("td:last");
-        td.append('<div class="progress" align="left" style="width:' + 
-        ( ( parseFloat(td.html()) / x) * 100 ) + '%"/>');
-      }
-    }*/
-  })();
-  
-  function showProgress() {
-    var x = max - min, td, i, txt;
-    for ( i = 1; i <= TESTS.length; i++ ) {
-      td  = $("#tests tr").eq(i).find("td:last");
-      txt = td.text();
-      if (txt) $("div", td).css("width", ( ( parseFloat(txt) / x) * 100 ) + "%");
-      //$("div", td).css("width", ( ( parseFloat(td.text()) / x) * 100 ) + "%");
-    }
-  }
-}
-
-
-function initAnimationTests() {
-  var table = '<table border="0" cellpadding="1" cellspacing="1">' + 
-  '<tr><th>Test</th><th>Code</th><th>Test</th></tr>';
-  var html, tmp, testsDiv = $("#animation_tests");
-  for ( var i = 0; i < ANIMATION_TESTS.length; i++ ) {
-    tmp = ANIMATION_TESTS[i];
-    html  = '<tr bgcolor="#' + (i%2===0 ? 'EEEEEE' : 'FFFFFF') + '">';
-    html += '<td align="right"><b>' + tmp.label + ":</b></td>";
-    html += "<td><pre contentEditable=\"true\">" + tmp.code + "</pre></td>";
-    html += '<td><input type="button" value="  Test  " onclick="testAnimation(this)" /></td>';
-    html += "</tr>";
-    table += html;
-  }
-  table += '</table>';
-  testsDiv.append(table);
-}
-
-function testAnimation(btn) {
-  var td = btn.parentNode.previousSibling;
-  try {
-    $("img:last").stop().css("transform", "none");
-    eval($(td).text().replace(/\.animate\b/, ".stop().animate"));
-  } catch (ex) {
-    try {
-      console.dir(ex);
-    } catch ( ex2 ) {
-      alert( ex );
-    }
-    return;
+  if (ACTION[0].checked) {
+    ELEMENT.stop(true, false);
+    doTransform.startTime = null;
+    doTransform.degree = 0;
+    fps_val = "Not available";
   } 
+  
+  else if (ACTION[1].checked) {
+    doTransform.startTime = null;
+    doTransform.degree = 0;
+    fps_val = "Not available";
+    ELEMENT.animate({"rotate" : "+=360"}, {
+      duration: 1440,
+      complete: doTransform,
+      easing: "linear"
+    });
+  }
+  
+  else if (ACTION[2].checked) {
+    
+    if (!doTransform.startTime) {
+      ELEMENT.stop(true, false);
+      doTransform.startTime = +new Date;
+    }
+    
+    switch ( METHOD[0].options[METHOD[0].selectedIndex].value ) {
+      case "universal" :
+        ELEMENT.css({"rotate" : ++doTransform.degree % 360});
+      break;
+      case "Webkit":
+        ELEMENT[0].style.WebkitTransform = "rotate(" + (++doTransform.degree % 360) + "deg)";
+      break;
+      case "Gecko":
+        ELEMENT[0].style.MozTransform = "rotate(" + (++doTransform.degree % 360) + "deg)";
+      break;
+      case "Opera":
+        ELEMENT[0].style.OTransform = "rotate(" + (++doTransform.degree % 360) + "deg)";
+      break;
+      case "Microsoft":
+        ELEMENT[0].style["-ms-transform"] = "rotate(" + (++doTransform.degree % 360) + "deg)";
+      break;
+      case "W3C":
+        ELEMENT[0].style.transform = "rotate(" + (++doTransform.degree % 360) + "deg)";
+      break;
+      default:
+        ELEMENT.css("rotate", ++doTransform.degree % 360);
+      break;
+    }
+    
+    var deltaTime = +new Date - doTransform.startTime;
+    var fps = 1000 * (doTransform.degree/deltaTime);
+    fps = Math.round(fps*10) / 10;
+    //if (last_fps !== fps) {
+      //FPS.innerHTML = fps;
+      fps_val = fps;
+      //last_fps = fps;
+    //}
+    doTransform.timeout = setTimeout(doTransform, 0);
+  }
 }
+doTransform.degree = 0;
+doTransform.timeout = null;
+
+function resetFPS() {
+  doTransform.startTime = null;
+  doTransform.degree = 0;
+}
+
 </script>
 </head>
-<body onload="init();">
-<h2>jQuery.fn.css</h2><hr />
-<img src="car.jpg" />
-<input type="button" onclick="runTests()" value=" Run Tests " style="position:relative;z-index:100" />
-Note: Use "x100" or "x1000" for realistic results; Disable Firebug; Examples are editable.
-<div id="tests"></div>
-<h4>Conclusion</h4>
-1. Setters are slower than getters.<br />
-2. The Setter speed depends mostly from the setted properties count.
-<h2>Animation tests</h2>
-<img src="car.jpg" />
-<div id="animation_tests"></div>
+
+<body>
+	<table border="0" cellspacing="1" cellpadding="1" class="toolbar" width="100%">
+  <tr>
+    <th colspan="10">Element Style</th>
+    <th width="100%">Test Action</th>
+  </tr>
+  <tr>
+    <td align="right">position</td>
+    <td><select name="position" id="position">
+      <option value="static">static</option>
+      <option value="relative">relative</option>
+      <option value="absolute">absolute</option>
+      <option value="fixed">fixed</option>
+    </select></td>
+    <td align="right">outline</td>
+    <td><input id="outline" /></td>
+    <td align="right">width</td>
+    <td><input id="width" /></td>
+    <td align="right">float</td>
+    <td><select id="float">
+      <option value=""></option>
+      <option value="none">none</option>
+      <option value="left">left</option>
+      <option value="right">right</option>
+    </select></td>
+    <td align="right" nowrap>align (attr.)</td>
+    <td><input id="align" onchange="ELEMENT.attr('align', this.value)"/></td>
+    <td><label><input name="act" type="radio" onclick="doTransform()" checked />Don't rotate</label></td>
+  </tr>
+  <tr>
+    <td align="right">display</td>
+    <td><select name="display" id="display">
+      <option value="inline">inline</option>
+      <option value="block">block</option>
+      <option value="inline-block">inline-block</option>
+    </select></td>
+    <td align="right">fontSize</td>
+    <td><input id="fontSize" /></td>
+    <td align="right">height</td>
+    <td><input id="height" /></td>
+    <td align="right">lineHeight</td>
+    <td><input id="lineHeight" /></td>
+    <td nowrap>Parent position</td>
+    <td><select onchange="$('#theparent').css('position', $(this).val());">
+      <option value="static">static</option>
+      <option value="relative">relative</option>
+      <option value="absolute">absolute</option>
+      <option value="fixed">fixed</option></select></td>
+    <td nowrap><label><input name="act" type="radio" onclick="doTransform()" />Rotate normal (animate)</label></td>
+  </tr>
+  <tr>
+    <td align="right">top</td>
+    <td><input id="top" /></td>
+    <td align="right">marginTop</td>
+    <td><input id="marginTop" /></td>
+    <td align="right">paddingTop</td>
+    <td><input id="paddingTop" /></td>
+    <td align="right">borderTopWidth</td>
+    <td><input id="borderTopWidth" /></td>
+    <td align="right"></td>
+    <td></td>
+    <td><label><input name="act" type="radio" onclick="doTransform()" />Rotate strict</label></td>
+  </tr>
+  <tr>
+    <td align="right">right</td>
+    <td><input id="right" /></td>
+    <td align="right">marginRight</td>
+    <td><input id="marginRight" /></td>
+    <td align="right">paddingRight</td>
+    <td><input id="paddingRight" /></td>
+    <td align="right">borderRightWidth</td>
+    <td><input id="borderRightWidth" /></td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>FPS: <span id="fps"></span></td>
+  </tr>
+  <tr>
+    <td align="right">bottom</td>
+    <td><input id="bottom" /></td>
+    <td align="right">&nbsp;marginBottom</td>
+    <td><input id="marginBottom" /></td>
+    <td align="right">&nbsp;paddingBottom</td>
+    <td><input id="paddingBottom" /></td>
+    <td align="right">&nbsp;borderBottomWidth</td> 
+    <td><input id="borderBottomWidth" /></td>
+    <td>&nbsp;</td>
+    <td align="right">Method</td>
+    <td><select id="method" onchange="resetFPS();doTransform();">
+      <option value="universal">Universal (The plugin)</option>
+      <option value="Webkit">Webkit</option>
+      <option value="Gecko">Gecko</option>
+      <option value="Opera">Opera</option>
+      <option value="Microsoft">Microsoft</option>
+      <option value="W3C">W3C</option>
+    </select></td>
+  </tr>
+  <tr>
+    <td align="right">left</td>
+    <td><input id="left" /></td>
+    <td align="right">marginLeft</td>
+    <td><input id="marginLeft" /></td>
+    <td align="right">paddingLeft</td>
+    <td><input id="paddingLeft" /></td>
+    <td align="right">borderLeftWidth</td>
+    <td><input id="borderLeftWidth" /></td>
+    <td>&nbsp;</td>
+    <td align="right">Transform orign</td>
+    <td><input id="transformOrigin" value="50% 50%" onchange="setTransformOrign()" /></td>
+  </tr>
+</table>
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+  <br />
+  <br />
+	<br />
+  <br />
+	<br />
+  You can use the following URL parameters to tune-up this test:
+  <ol>
+    <li>"<b>jquery</b>" - Use this to load different versions of jQuery. Possible 
+    values are (any versioned jQuery file at "./ScriptLibrary" folder):
+      <ul>
+        <li>"-latest.pack" (default - whatever is contained in file called "jquery-latest.pack.js")</li>
+        <li>1.3.2</li>
+        <li>1.4</li>
+        <li>1.4.1</li>
+        <li>1.4.2</li>
+        <li>1.4.3</li>
+        <li>1.4.4</li>
+      </ul>
+    </li>
+  </ol>
+	<br />
+<div id="theparent" style="background-color:#EEC;top:300px;border:1px solid #CC9;padding:1px;">
+  <img src="car.jpg" class="tested" />
+</div>
+
+<script type="text/javascript">
+/*
+ RequireJS Copyright (c) 2010, The Dojo Foundation All Rights Reserved.
+ Available via the MIT or new BSD license.
+ see: http://github.com/jrburke/requirejs for details
+*/
+var require,define;
+(function(){function A(a){return H.call(a)==="[object Function]"}function B(a,b,d){var c=h.plugins.defined[a];if(c)c[d.name].apply(null,d.args);else{c=h.plugins.waiting[a]||(h.plugins.waiting[a]=[]);c.push(d);f(["require/"+a],b.contextName)}}function C(a,b){D.apply(f,a);b.loaded[a[0]]=true}function I(a,b,d){var c,e,g;for(c=0;g=b[c];c++){g=typeof g==="string"?{name:g}:g;e=g.location;if(d&&(!e||e.indexOf("/")!==0&&e.indexOf(":")===-1))g.location=d+"/"+(g.location||g.name);g.location=g.location||g.name;
+g.lib=g.lib||"lib";g.main=g.main||"main";a[g.name]=g}}function J(a){var b=true,d=a.config.priorityWait,c,e;if(d){for(e=0;c=d[e];e++)if(!a.loaded[c]){b=false;break}b&&delete a.config.priorityWait}return b}function x(a){var b,d=h.paused;if(a.scriptCount<=0){for(a.scriptCount=0;t.length;){b=t.shift();b[0]===null?f.onError(new Error("Mismatched anonymous require.def modules")):C(b,a)}if(!(a.config.priorityWait&&!J(a))){if(d.length)for(a=0;b=d[a];a++)f.checkDeps.apply(f,b);f.checkLoaded(h.ctxName)}}}function R(a,
+b){var d=h.plugins.callbacks[a]=[];h.plugins[a]=function(){for(var c=0,e;e=d[c];c++)if(e.apply(null,arguments)===true&&b)return true;return false}}function K(a,b){if(!a.jQuery)if((b=b||(typeof jQuery!=="undefined"?jQuery:null))&&"readyWait"in b){a.jQuery=b;if(!a.defined.jquery&&!a.jQueryDef)a.defined.jquery=b;if(a.scriptCount){b.readyWait+=1;a.jQueryIncremented=true}}}function S(a){return function(b){a.exports=b}}function u(a,b,d){return function(){var c=[].concat(T.call(arguments,0));c.push(b,d);
+return(a?require[a]:require).apply(null,c)}}function U(a,b){var d=a.contextName,c=u(null,d,b);f.mixin(c,{modify:u("modify",d,b),def:u("def",d,b),get:u("get",d,b),nameToUrl:u("nameToUrl",d,b),ready:f.ready,context:a,config:a.config,isBrowser:h.isBrowser});return c}var p={},h,o,v=[],E,y,L,w,M,r={},N,V=/^(complete|loaded)$/,W=/(\/\*([\s\S]*?)\*\/|\/\/(.*)$)/mg,X=/require\(["']([\w-_\.\/]+)["']\)/g,D,q=!!(typeof window!=="undefined"&&navigator&&document),O=!q&&typeof importScripts!=="undefined",H=Object.prototype.toString,
+P=Array.prototype,T=P.slice,F,f,z,t=[],Q=false,G;if(typeof require!=="undefined")if(A(require))return;else r=require;f=require=function(a,b,d,c,e){var g;if(typeof a==="string"&&!A(b))return require.get(a,b,d,c);if(!require.isArray(a)){g=a;if(require.isArray(b)){a=b;b=d;d=c;c=e}else a=[]}D(null,a,b,g,d,c);(a=h.contexts[d||g&&g.context||h.ctxName])&&a.scriptCount===0&&x(a)};f.onError=function(a){throw a;};define=f.def=function(a,b,d,c){var e,g,i=G;if(typeof a!=="string"){c=d;d=b;b=a;a=null}if(!f.isArray(b)){c=
+d;d=b;b=[]}if(!a&&!b.length&&f.isFunction(d)){d.toString().replace(W,"").replace(X,function(j,l){b.push(l)});b=["require","exports","module"].concat(b)}if(!a&&Q){e=document.getElementsByTagName("script");for(a=e.length-1;a>-1&&(g=e[a]);a--)if(g.readyState==="interactive"){i=g;break}i||f.onError(new Error("ERROR: No matching script interactive for "+d));a=i.getAttribute("data-requiremodule")}if(typeof a==="string")h.contexts[h.ctxName].jQueryDef=a==="jquery";t.push([a,b,d,null,c])};D=function(a,b,
+d,c,e,g){var i,j,l,m,k;e=e?e:c&&c.context?c.context:h.ctxName;i=h.contexts[e];if(a){j=a.indexOf("!");if(j!==-1){l=a.substring(0,j);a=a.substring(j+1,a.length)}else l=i.defPlugin[a];j=i.waiting[a];if(i&&(i.defined[a]||j&&j!==P[a]))return}if(e!==h.ctxName){j=h.contexts[h.ctxName]&&h.contexts[h.ctxName].loaded;m=true;if(j)for(k in j)if(!(k in p))if(!j[k]){m=false;break}if(m)h.ctxName=e}if(!i){i={contextName:e,config:{waitSeconds:7,baseUrl:h.baseUrl||"./",paths:{},packages:{}},waiting:[],specified:{require:true,
+exports:true,module:true},loaded:{},scriptCount:0,urlFetched:{},defPlugin:{},defined:{},modifiers:{}};h.plugins.newContext&&h.plugins.newContext(i);i=h.contexts[e]=i}if(c){if(c.baseUrl)if(c.baseUrl.charAt(c.baseUrl.length-1)!=="/")c.baseUrl+="/";m=i.config.paths;j=i.config.packages;f.mixin(i.config,c,true);if(c.paths){for(k in c.paths)k in p||(m[k]=c.paths[k]);i.config.paths=m}if((m=c.packagePaths)||c.packages){if(m)for(k in m)k in p||I(j,m[k],k);c.packages&&I(j,c.packages);i.config.packages=j}if(c.priority){f(c.priority);
+i.config.priorityWait=c.priority}if(c.deps||c.callback)f(c.deps||[],c.callback);c.ready&&f.ready(c.ready);if(!b)return}if(b){k=b;b=[];for(c=0;c<k.length;c++)b[c]=f.splitPrefix(k[c],a||g,i)}g=i.waiting.push({name:a,deps:b,callback:d});if(a){i.waiting[a]=g-1;i.specified[a]=true;if(g=i.modifiers[a]){f(g,e);if(g=g.__deferMods)for(c=0;c<g.length;c++){k=g[c];j=k[k.length-1];if(j===undefined)k[k.length-1]=e;else typeof j==="string"&&g.push(e);require.def.apply(require,k)}}}if(a&&d&&!f.isFunction(d))i.defined[a]=
+d;l&&B(l,i,{name:"require",args:[a,b,d,i]});h.paused.push([l,a,b,i]);if(a){i.loaded[a]=true;i.jQueryDef=a==="jquery"}};f.mixin=function(a,b,d){for(var c in b)if(!(c in p)&&(!(c in a)||d))a[c]=b[c];return f};f.version="0.14.5";h=f.s={ctxName:"_",contexts:{},paused:[],plugins:{defined:{},callbacks:{},waiting:{}},skipAsync:{},isBrowser:q,isPageLoaded:!q,readyCalls:[],doc:q?document:null};f.isBrowser=h.isBrowser;if(q){h.head=document.getElementsByTagName("head")[0];if(z=document.getElementsByTagName("base")[0])h.head=
+z.parentNode}f.plugin=function(a){var b,d,c,e=a.prefix,g=h.plugins.callbacks,i=h.plugins.waiting[e],j;b=h.plugins.defined;c=h.contexts;if(b[e])return f;b[e]=a;j=["newContext","isWaiting","orderDeps"];for(b=0;d=j[b];b++){h.plugins[d]||R(d,d==="isWaiting");g[d].push(a[d])}if(a.newContext)for(d in c)if(!(d in p)){b=c[d];a.newContext(b)}if(i){for(b=0;c=i[b];b++)a[c.name]&&a[c.name].apply(null,c.args);delete h.plugins.waiting[e]}return f};f.completeLoad=function(a,b){for(var d;t.length;){d=t.shift();if(d[0]===
+null){d[0]=a;break}else if(d[0]===a)break;else C(d,b)}d&&C(d,b);b.loaded[a]=true;K(b);b.scriptCount-=1;x(b)};f.pause=f.resume=function(){};f.checkDeps=function(a,b,d,c){if(a)B(a,c,{name:"checkDeps",args:[b,d,c]});else for(a=0;b=d[a];a++)if(!c.specified[b.fullName]){c.specified[b.fullName]=true;c.startTime=(new Date).getTime();b.prefix?B(b.prefix,c,{name:"load",args:[b.name,c.contextName]}):f.load(b.name,c.contextName)}};f.modify=function(a,b,d,c,e){var g,i,j=(typeof a==="string"?e:b)||h.ctxName,l=
+h.contexts[j],m=l.modifiers;if(typeof a==="string"){i=m[a]||(m[a]=[]);if(!i[b]){i.push(b);i[b]=true}l.specified[a]?f.def(b,d,c,e):(i.__deferMods||(i.__deferMods=[])).push([b,d,c,e])}else for(g in a)if(!(g in p)){b=a[g];i=m[g]||(l.modifiers[g]=[]);if(!i[b]){i.push(b);i[b]=true;l.specified[g]&&f([b],j)}}};f.isArray=function(a){return H.call(a)==="[object Array]"};f.isFunction=A;f.get=function(a,b,d){if(a==="require"||a==="exports"||a==="module")f.onError(new Error("Explicit require of "+a+" is not allowed."));
+b=b||h.ctxName;var c=h.contexts[b];a=f.normalizeName(a,d,c);d=c.defined[a];d===undefined&&f.onError(new Error("require: module name '"+a+"' has not been loaded yet for context: "+b));return d};f.load=function(a,b){var d=h.contexts[b],c=d.urlFetched,e=d.loaded;h.isDone=false;e[a]||(e[a]=false);if(b!==h.ctxName)v.push(arguments);else{e=f.nameToUrl(a,null,b);if(!c[e]){d.scriptCount+=1;f.attach(e,b,a);c[e]=true;if(d.jQuery&&!d.jQueryIncremented){d.jQuery.readyWait+=1;d.jQueryIncremented=true}}}};f.jsExtRegExp=
+/\.js$/;f.normalizeName=function(a,b,d){if(a.charAt(0)==="."){b||f.onError(new Error("Cannot normalize module name: "+a+", no relative module name available."));if(d.config.packages[b])b=[b];else{b=b.split("/");b=b.slice(0,b.length-1)}a=b.concat(a.split("/"));for(o=0;b=a[o];o++)if(b==="."){a.splice(o,1);o-=1}else if(b===".."){a.splice(o-1,2);o-=2}a=a.join("/")}return a};f.splitPrefix=function(a,b,d){var c=a.indexOf("!"),e=null;if(c!==-1){e=a.substring(0,c);a=a.substring(c+1,a.length)}a=f.normalizeName(a,
+b,d);return{prefix:e,name:a,fullName:e?e+"!"+a:a}};f.nameToUrl=function(a,b,d,c){var e,g,i,j;j=h.contexts[d];d=j.config;a=f.normalizeName(a,c,j);if(a.indexOf(":")!==-1||a.charAt(0)==="/"||f.jsExtRegExp.test(a))a=a+(b?b:"");else{e=d.paths;g=d.packages;c=a.split("/");for(j=c.length;j>0;j--){i=c.slice(0,j).join("/");if(e[i]){c.splice(0,j,e[i]);break}else if(i=g[i]){e=i.location+"/"+i.lib;if(a===i.name)e+="/"+i.main;c.splice(0,j,e);break}}a=c.join("/")+(b||".js");a=(a.charAt(0)==="/"||a.match(/^\w+:/)?
+"":d.baseUrl)+a}return d.urlArgs?a+((a.indexOf("?")===-1?"?":"&")+d.urlArgs):a};f.checkLoaded=function(a){var b=h.contexts[a||h.ctxName],d=b.config.waitSeconds*1E3,c=d&&b.startTime+d<(new Date).getTime(),e,g=b.defined,i=b.modifiers,j="",l=false,m=false,k,n=h.plugins.isWaiting,s=h.plugins.orderDeps;if(!b.isCheckLoaded){if(b.config.priorityWait)if(J(b))x(b);else return;b.isCheckLoaded=true;d=b.waiting;e=b.loaded;for(k in e)if(!(k in p)){l=true;if(!e[k])if(c)j+=k+" ";else{m=true;break}}if(!l&&!d.length&&
+(!n||!n(b)))b.isCheckLoaded=false;else{if(c&&j){e=new Error("require.js load timeout for modules: "+j);e.requireType="timeout";e.requireModules=j;f.onError(e)}if(m){b.isCheckLoaded=false;if(q||O)setTimeout(function(){f.checkLoaded(a)},50)}else{b.waiting=[];b.loaded={};s&&s(b);for(k in i)k in p||g[k]&&f.execModifiers(k,{},d,b);for(e=0;g=d[e];e++)f.exec(g,{},d,b);b.isCheckLoaded=false;if(b.waiting.length||n&&n(b))f.checkLoaded(a);else if(v.length){e=b.loaded;b=true;for(k in e)if(!(k in p))if(!e[k]){b=
+false;break}if(b){h.ctxName=v[0][1];k=v;v=[];for(e=0;b=k[e];e++)f.load.apply(f,b)}}else{h.ctxName="_";h.isDone=true;f.callReady&&f.callReady()}}}}};f.exec=function(a,b,d,c){if(a){var e=a.name,g=a.callback;g=a.deps;var i,j,l=c.defined,m,k=[],n,s=false;if(e){if(b[e]||e in l)return l[e];b[e]=true}if(g)for(i=0;j=g[i];i++){j=j.name;if(j==="require")j=U(c,e);else if(j==="exports"){j=l[e]={};s=true}else if(j==="module"){n=j={id:e,uri:e?f.nameToUrl(e,null,c.contextName):undefined};n.setExports=S(n)}else j=
+j in l?l[j]:b[j]?undefined:f.exec(d[d[j]],b,d,c);k.push(j)}if((g=a.callback)&&f.isFunction(g)){m=f.execCb(e,g,k);if(e)if(s&&m===undefined&&(!n||!("exports"in n)))m=l[e];else if(n&&"exports"in n)m=l[e]=n.exports;else{e in l&&!s&&f.onError(new Error(e+" has already been defined"));l[e]=m}}f.execModifiers(e,b,d,c);return m}};f.execCb=function(a,b,d){return b.apply(null,d)};f.execModifiers=function(a,b,d,c){var e=c.modifiers,g=e[a],i,j;if(g){for(j=0;j<g.length;j++){i=g[j];i in d&&f.exec(d[d[i]],b,d,c)}delete e[a]}};
+f.onScriptLoad=function(a){var b=a.currentTarget||a.srcElement,d;if(a.type==="load"||V.test(b.readyState)){d=b.getAttribute("data-requirecontext");a=b.getAttribute("data-requiremodule");d=h.contexts[d];f.completeLoad(a,d);b.removeEventListener?b.removeEventListener("load",f.onScriptLoad,false):b.detachEvent("onreadystatechange",f.onScriptLoad)}};f.attach=function(a,b,d,c,e){var g;if(q){c=c||f.onScriptLoad;g=document.createElement("script");g.type=e||"text/javascript";g.charset="utf-8";if(!h.skipAsync[a])g.async=
+true;g.setAttribute("data-requirecontext",b);g.setAttribute("data-requiremodule",d);if(g.addEventListener)g.addEventListener("load",c,false);else{Q=true;g.attachEvent("onreadystatechange",c)}g.src=a;G=g;z?h.head.insertBefore(g,z):h.head.appendChild(g);G=null;return g}else if(O){c=h.contexts[b];b=c.loaded;b[d]=false;importScripts(a);f.completeLoad(d,c)}return null};h.baseUrl=r.baseUrl;if(q&&(!h.baseUrl||!h.head)){E=document.getElementsByTagName("script");L=r.baseUrlMatch?r.baseUrlMatch:/(allplugins-)?require\.js(\W|$)/i;
+for(o=E.length-1;o>-1&&(y=E[o]);o--){if(!h.head)h.head=y.parentNode;if(!r.deps)if(w=y.getAttribute("data-main"))r.deps=[w];if((w=y.src)&&!h.baseUrl)if(M=w.match(L)){h.baseUrl=w.substring(0,M.index);break}}}f.pageLoaded=function(){if(!h.isPageLoaded){h.isPageLoaded=true;F&&clearInterval(F);if(N)document.readyState="complete";f.callReady()}};f.callReady=function(){var a=h.readyCalls,b,d,c;if(h.isPageLoaded&&h.isDone){if(a.length){h.readyCalls=[];for(b=0;d=a[b];b++)d()}a=h.contexts;for(c in a)if(!(c in
+p)){b=a[c];if(b.jQueryIncremented){b.jQuery.readyWait-=1;b.jQueryIncremented=false}}}};f.ready=function(a){h.isPageLoaded&&h.isDone?a():h.readyCalls.push(a);return f};if(q){if(document.addEventListener){document.addEventListener("DOMContentLoaded",f.pageLoaded,false);window.addEventListener("load",f.pageLoaded,false);if(!document.readyState){N=true;document.readyState="loading"}}else if(window.attachEvent){window.attachEvent("onload",f.pageLoaded);if(self===self.top)F=setInterval(function(){try{if(document.body){document.documentElement.doScroll("left");
+f.pageLoaded()}}catch(a){}},30)}document.readyState==="complete"&&f.pageLoaded()}f(r);typeof setTimeout!=="undefined"&&setTimeout(function(){var a=h.contexts[r.context||"_"];K(a);x(a)},0)})();
+
+
+var m = document.location.search.match(/\bjquery=([^&]+)?/i);
+var jQueryVersion = m ? "." + m[1] || "-latest.pack" : "-latest.pack";
+
+require(["ScriptLibrary/jquery" + jQueryVersion + ".js"], function() {
+  require([
+    "jquery.csstransform.js",
+    "ScriptLibrary/jquery.easing.1.3.js"
+    ], init
+  );
+});
+</script>
+
 </body>
 </html>

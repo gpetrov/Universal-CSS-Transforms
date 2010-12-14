@@ -2,11 +2,11 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>DMXzone Universal CSS Transforms Documentation</title>
+<title>Universal CSS Transforms Documentation</title>
 <link rel="stylesheet" type="text/css" href="style.css" /> 
-<script src="../Files/ScriptLibrary/jquery-latest.pack.js"></script>
-<script src="../Files/ScriptLibrary/jquery.easing.1.3.js"></script>
-<script src="../Files/jquery.csstransform.pack.js"></script>
+<script src="../Files/ScriptLibrary/jquery.1.4.4.js"></script>
+<script src="../Files/ScriptLibrary/jquery.easing.js"></script>
+<script src="../Files/jquery.csstransform.1.4.js"></script>
 <script type="text/javascript">
 
 $(function() {  
@@ -33,13 +33,17 @@ $(function() {
   
 });
 
+var $img;
 function activateExamples(preId, btn) {
   var $pre = $("#" + preId).css({ position: "relative", lineHeight: "10px" });
-  var $img = $('<img src="../Files/car.jpg" />').css({
-    position: "absolute",
-    top     : 30,
-    right   : 30
-  });
+  if (!$img) {
+    $img = $('<img src="../Files/car.jpg" />').css({
+      position: "fixed",
+      top     : 100,
+      left    : 900,
+      zIndex  : 1000
+    }).appendTo("body");
+  }
   
   var divs = $("div", $pre).get();
   var cssOrAnim = '<select class="cssOrAnim"><option value="css">css</option>'
@@ -77,7 +81,7 @@ function activateExamples(preId, btn) {
   }
   
   function finalize() {
-    $img.appendTo($pre);
+    //$img.appendTo($pre);
     $pre.append(
       '<hr /><p align="right">Result ($("#theimage").css("transform");): ' +
       '<input type="text" size="80" /></p>'
@@ -93,7 +97,7 @@ function activateExamples(preId, btn) {
 <body>
   <div id="wrapper">
     <div id="header">
-      <h1 class="test">DMXzone Universal CSS Transforms</h1>
+      <h1 class="test">Universal CSS Transforms</h1>
     </div>
     <div class="tabs">
       <div class="tab" forpannel="about">About</div>
@@ -108,31 +112,26 @@ function activateExamples(preId, btn) {
       <!-- ======================= About pannel ======================= -->
       <div id="about">
         <div class="section">
-          <h4>What CSSTransforms does, and what it is not able to do</h4>
-          <p>
-            &bull; CSSTransforms IS NOT a jQuery plugin, but a patch for some of it's built-in methods 
-            (a plugin needs to be released later, to handle some advanced issues).
-          </p>
+          <h4>What Universal CSS Transforms does, and what it is not able to do</h4>
           <p>
             The <b>transform</b> CSS property is by definition a list of transformation functions.
             This is probably the most complex type of css property (not a primitive value and not even a value list).
             It is a combination of one or more (up to 11) different functions, each of witch can be used more than once.
-            Also, the order DOES matter.
-          </p>
-          <p>
-            CSSTransforms is designed to be as simple to use, as possible. It attempts to provide
-            a "native" support for those transform functions to jQuery. It is neither possible to make this simple,
+            Also, the order DOES matter.          </p>
+<p>
+          Universal CSS Transforms is designed to be as simple to use, as possible. It attempts to provide
+          a "native" support for those transform functions to jQuery. It is neither possible to make this simple,
             nor possible to support this in the jQuery way, so we have chosen different approach here.
             For the sake of functionality and simplicity, we do limit the transform property to a set of 
             unique functions only. For example, if an element has a rotation and skew applied, setting a rotation 
             will replace the existing one (in other words, each transform functions, can be used only once).
             This brings some limitations, but still covers 90% of use cases and allows us to make other
-            useful things, like supporting a preparatory css properties and mixing them with the regular ones...
+            useful things, like supporting our own css properties and mixing them with the regular ones...
           </p>
           <p>
             All of the CSS transformation function names have been made available for use as a CSS property names
-            with the $.fn.css() method. Those are:
-            <ul>
+            with the $.fn.css() method. These are:
+        <ul>
               <li><b><i>matrix</i></b></li>
               <li><b><i>rotate</i></b></li>
               <li><b><i>scale</i></b></li>
@@ -146,10 +145,10 @@ function activateExamples(preId, btn) {
               <li><b><i>translateY</i></b></li>
             </ul>
           </p>
-          <p> These can also be animated, but see the limitations bellow</p>
+          <p> Some of them can also be animated (see the limitations bellow).</p>
           <p>
             Additionally the following are considered very useful and also supported:
-            <ul>
+        <ul>
               <li><b><i>transform</i></b>
                 <ol>
                   <li>
@@ -189,7 +188,7 @@ function activateExamples(preId, btn) {
             </li>
             <li>
               The transform-origin property is not implemented 
-              (for IE and older browser)
+              (for IE and older browsers)
             </li>
           </ol>
         </div>
