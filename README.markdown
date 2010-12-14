@@ -20,38 +20,38 @@ useful things, like supporting our own css properties and mixing them with the r
 
 Example
 ---
-Here is an example of some gury code to make a simple spinning square animation.
+Here are some usage examples
 
-# Single argument
+## Single argument
 
-    * as number: `$(element).css("skew", 30);`
+    * as number: $(element).css("skew", 30);
     
-    * as string: `$(element).css("skew", "30");` 
-                 `$(element).css("skew", "30deg");` 
-                 `$(element).css("skew", "-=30");` 
-                 `$(element).css("skew", "-=30deg");`
+    * as string: $(element).css("skew", "30");
+                 $(element).css("skew", "30deg");
+                 $(element).css("skew", "-=30");
+                 $(element).css("skew", "-=30deg");
                  
-    * as array: `$(element).css("skew", [30]);`
-                `$(element).css("skew", ["30"]);`
-                `$(element).css("skew", ["30deg"]);`
-                `$(element).css("skew", ["+=30"]);`
+    * as array: $(element).css("skew", [30]);
+                $(element).css("skew", ["30"]);
+                $(element).css("skew", ["30deg"]);
+                $(element).css("skew", ["+=30"]);
 
-# Multiple arguments
+## Multiple arguments
 
-    * as string: `$(element).css("skew", "30, 22deg");`
-                 `$(element).css("skew", "30, 20");`
-                 `$(element).css("skew", "-=30, +=2");`
-                 `$(element).css("skew", "-=30deg, 44");`
+    * as string: $(element).css("skew", "30, 22deg");
+                 $(element).css("skew", "30, 20");
+                 $(element).css("skew", "-=30, +=2");
+                 $(element).css("skew", "-=30deg, 44");
                  
-    * as array: `$(element).css("skew", [30, "22deg"]);`
-                `$(element).css("skew", [30, 20]);`
-                `$(element).css("skew", ["-=30", "+=2"]);`
-                `$(element).css("skew", ["-=30deg", 44]);`
+    * as array: $(element).css("skew", [30, "22deg"]);
+                $(element).css("skew", [30, 20]);
+                $(element).css("skew", ["-=30", "+=2"]);
+                $(element).css("skew", ["-=30deg", 44]);
 
 Documentation
 ---
 You can find full API documentation for the project on it's github wiki:
-http://github.com/gpetrov/Universal-CSS-Transforms/wiki/API
+http://github.com/gpetrov/Universal-CSS-Transforms/wiki
 
 License (MIT)
 ---
