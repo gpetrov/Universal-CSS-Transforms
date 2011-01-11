@@ -60,16 +60,18 @@
         ? "WebkitTransform"
         : div.style.OTransform !== undefined
           ? "OTransform"
-          : false;
+          : div.style.KhtmlTransform !== undefined
+            ? "KhtmlTransform"
+            : false;
   
   //console.log(div.style["-ms-transform"], $.support.transform)
   if (!$.cssHooks) { // jQuery < 1.4.3
     $.cssHooks = {};
   }
   
-  $.cssHooks["multiplied-matrix"] = {
+  $.cssHooks.multipliedMatrix = {
     get : function( elem, computed) {
-      return TransformManager.getInstance( elem ).get( "multiplied-matrix" );
+      return TransformManager.getInstance( elem ).get( "multipliedMatrix" );
     }
   };
   
@@ -110,7 +112,7 @@
       var handler = $.cssHooks[name]
       ? $.cssHooks[name].get
       : null;
-      if (handler) {
+      if (name in TRANSFORM_PROPS && handler) {
         return handler(elem);
       }
       return orig_curCSS.apply(jQuery, arguments);
@@ -142,7 +144,7 @@
           var handler = $.cssHooks[key]
           ? $.cssHooks[key].set
           : null;
-          if (handler) { 
+          if (key in TRANSFORM_PROPS && handler) { 
             return this.each(
               function(i) {
                 handler(
@@ -168,7 +170,7 @@
             handler = $.cssHooks[x] 
             ? $.cssHooks[x].set
             : null;
-            if (handler) { 
+            if (x in TRANSFORM_PROPS && handler) { 
               value = key[x];
               
               // since jQuery 1.4
@@ -182,7 +184,7 @@
         });
       }
       
-      return orig_css.call( this, key, value );
+      return orig_css.apply( this, arguments );
     };
   }
   
@@ -201,8 +203,8 @@
     var handler = $.cssHooks[this.prop]
       ? $.cssHooks[this.prop].get
       : null;
-    if (handler) {
-      return parseFloat(handler(this.elem).replace(/^[^\d-\.\+]*/, ""));
+    if (this.prop in TRANSFORM_PROPS && handler) {
+      return parseFloat(String(handler(this.elem)).replace(/^[^\d-\.\+]*/, ""));
     }
     return orig_cur.apply(this, arguments);
   };
@@ -687,7 +689,7 @@
    * Estension: Use "transform" (or call it with no arguments) to get 
    * the entire CSSTransform string (no mather of the browser).
    * 
-   * Estension: Use "multiplied-matrix" to get the current multiplied 
+   * Estension: Use "multipliedMatrix" to get the current multiplied 
    * matrix (the result of "merging" all the current transforms into 
    * one single Matrix).
    *
@@ -699,7 +701,7 @@
       return this.toString();
     }
     
-    if ( type == "multiplied-matrix" ) {
+    if ( type == "multipliedMatrix" ) {
       return "matrix(" + this.getMatrix() + ")";
     }
     
@@ -841,7 +843,8 @@
             }
             
             if ( !isNaN(arg) ) {
-              args2.push(arg);
+              // TODO: just use fn.args[l] = arg; and comment the fn.args = args2; below
+              args2.unshift(arg);
             }
             
           }
@@ -971,6 +974,13 @@
      * @type Array
      */
     this._stackIndex = {};
+    
+    /**
+     * A regular expression to match IE matrix filter strings
+     *
+     * @type {RegExp}
+     */
+    this.filterReg = /(progid:DXImageTransform\.Microsoft\.)?Matrix\s*\([^\)]*\)/i;
   }
 
   IETransformManager.prototype = new TransformManager();
@@ -1000,10 +1010,15 @@
       if ( diff > 100 ) {
         M.b *= diff / 100;
       }
+     
+      var style = this.element.style;
+      var filter = style.filter || "";
+      var mx = "";
       
       // Dont fire filters just for translate!
       if ( M.a !== 1 || M.b !== 0 || M.c !== 0 || M.d !== 1 ) {
-        this.element.style.filter = " progid:DXImageTransform.Microsoft.Matrix(" 
+        
+        mx = "progid:DXImageTransform.Microsoft.Matrix(" 
         + "M11=" + M.a  + ","
         + "M12=" + M.c  + ","
         + "M21=" + M.b  + ","
@@ -1011,18 +1026,22 @@
         //+ "Dx="  + M.tx + "," // MSDN: This property is ignored if the SizingMethod is set to auto expand.
         //+ "Dy="  + M.ty + "," // MSDN: This property is ignored if the SizingMethod is set to auto expand.
         + "sizingMethod='auto expand'," 
-        + "FilterType='nearest neighbor') "
-        + String(this.element.style.filter || "").replace(
-          /(progid:DXImageTransform\.Microsoft\.)?Matrix\s*\([^\)]*\)\s*/gi, 
-          "" 
-        );
+        + "FilterType='nearest neighbor')";
       }
       
-      this.element.style.top  = (
+      if (this.filterReg.test(filter)) {
+        style.filter = filter.replace(this.filterReg, mx);
+      } else {
+        if (mx) {
+          style.filter = mx + " " + style.filter;
+        }
+      }
+      
+      style.top  = (
         (this.origState.height - $(this.element).height()) / 2
       ) + M.ty + this.origState.top  + 'px';
       
-      this.element.style.left = (
+      style.left = (
         (this.origState.width  - $(this.element).width() ) / 2
       ) + M.tx + this.origState.left + 'px';
     }
@@ -1088,8 +1107,8 @@
           left   : this.origState.left
         });
         
-        break;
-        
+      break;
+      
       case "fixed":
         
         // we need to store top/left values
@@ -1105,8 +1124,8 @@
           left   : this.origState.left
         });
         
-        break;
-        
+      break;
+      
       case "relative":
         
         // we need to store top/left values
@@ -1141,14 +1160,14 @@
           });
         }
         
-        break;
-        
+      break;
+      
       default: // static
         
         // we need to store top/left values
         this.origState.top  = 0; // ignored for static
         this.origState.left = 0; // ignored for static
-        storeCss("width", "height", "top", "left", "position");
+        storeCss("width", "height", "top", "left", "position", "filter");
         obj.css({
           width    : this.origState.width,
           height   : this.origState.height,
@@ -1168,7 +1187,8 @@
             height   : obj.outerHeight({ margin : true })
           });
         }
-        break;
+        
+      break;
     }
   };
 
